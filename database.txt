@@ -1,0 +1,44 @@
+mysql> use productapi;
+Database changed
+
+mysql> CREATE TABLE Products (
+    ->     id INT PRIMARY KEY AUTO_INCREMENT,
+    ->     name VARCHAR(255) NOT NULL,
+    ->     description TEXT,
+    ->     price DECIMAL(10, 2) NOT NULL,
+    ->     category VARCHAR(100),
+    ->     stock_quantity INT DEFAULT 0,
+    ->     manufacturer VARCHAR(255),
+    ->     release_date DATE,
+    ->     rating DECIMAL(3, 2) CHECK (rating >= 0 AND rating <= 5)
+    -> );
+Query OK, 0 rows affected (1.79 sec)
+
+ INSERT INTO Products (name, description, price, category, stock_quantity, manufacturer, release_date, rating)
+    -> VALUES
+    -> ('Smartphone', '6.5-inch display and 128GB storage.', 799.99, 'Electronics', 50, 'Tech', '2023-05-10', 4.5),
+    -> ('Headphones', 'Bluetooth connectivity.', 199.99, 'Accessories', 120, 'Audio', '2022-12-15', 4.7),
+    -> ('Laptop', 'gaming laptop with Intel i9 ', 1499.99, 'Computers', 30, 'Tech', '2023-07-22', 4.8),
+    -> ('TV', '65-inch 4K OLED smart TV', 1299.99, 'Electronics', 25, 'Sony', '2023-02-01', 4.6),
+    -> ('Smartwatch', ' health tracking, GPS.', 349.99, 'Accessories', 75, 'Tech', '2023-04-20', 4.4);
+Query OK, 5 rows affected (0.07 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+..................................................................................................................................
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+
+mysql> CREATE TABLE IF NOT EXISTS users (
+    ->     id INT AUTO_INCREMENT PRIMARY KEY,
+    ->     username VARCHAR(255) NOT NULL UNIQUE,
+    ->     password VARCHAR(255) NOT NULL,
+    ->     is_admin BOOLEAN DEFAULT FALSE
+    -> );
+Query OK, 0 rows affected (1.29 sec)
+
+mysql> Insert into users(username,password,is_admin)
+    -> values
+    -> ('umesh',123,true),
+    -> ('manoj',123,false);
+Query OK, 2 rows affected (0.16 sec)
+Records: 2  Duplicates: 0  Warnings: 0

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Products Api</title>
+    <style>
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            margin: 0%;
+            padding: 20px;
+            color: black;
+        }
+        h1 {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: black;
+        }
+        form {
+            margin: auto;
+        }
+        input[type="text"], input[type="number"], input[type="date"] {
+            padding: 10px;
+            margin: 5px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            background-color: black;
+            color: antiquewhite;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #250f0f;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        table, th, td {
+            border: 1px solid antiquewhite;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: black;
+            color: antiquewhite;
+        }
+        .logout-button {
+            background-color: black;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>
+        Products Store
+        <button class="logout-button" onclick="logout()">Logout</button>
+    </h1>
+    <form id="productForm">
+        <input type="hidden" id="id">
+        <input type="text" id="name" placeholder="Name" required>
+        <input type="text" id="description" placeholder="Description">
+        <input type="number" step="0.01" id="price" placeholder="Price" required>
+        <input type="text" id="category" placeholder="Category">
+        <input type="number" step="0.01" id="stock_quantity" placeholder="Stock Quantity" required>
+        <input type="text" id="manufacturer" placeholder="Manufacturer" required>
+        <input type="date" id="release_date" placeholder="Release Date" required>
+        <input type="number" step="0.1" min="0" max="5" id="rating" placeholder="Rating (0-5)" required>
+        <button type="submit">Save Product</button>
+    </form>
+    <table>
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Price</th>
+                <th>Category</th>
+                <th>Stock Quantity</th>
+                <th>Manufacturer</th>
+                <th>Release Date</th>
+                <th>Rating</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="productsTableBody"></tbody>
+    </table>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', loadproducts);
+        document.getElementById('productForm').addEventListener('submit', saveproduct);
+
+        function loadproducts() {
+            fetch('/products')
+                .then(response => response.json())
+                .then(products => {
+                    const tableBody = document.querySelector('#productsTableBody');
+                    tableBody.innerHTML = '';
+                    products.forEach(product => {
+                        tableBody.innerHTML += `
+                            <tr>
+                                <td>${product.id}</td>
+                                <td>${product.name}</td>
+                                <td>${product.description}</td>
+                                <td>${product.price}</td>
+                                <td>${product.category}</td>
+                                <td>${product.stock_quantity}</td>
+                                <td>${product.manufacturer}</td>
+                                <td>${product.release_date}</td>
+                                <td>${product.rating}</td>
+                                <td>
+                                    <button onclick="editproduct(${product.id})">Edit</button>
+                                    <button onclick="deleteproduct(${product.id})">Delete</button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                })
+                .catch(error => console.error('Error loading products:', error));
+        }
+
+        function saveproduct(e) {
+            e.preventDefault();
+            const productid = document.getElementById('id').value;
+            const productdata = {
+                name: document.getElementById('name').value,
+                description: document.getElementById('description').value,
+                price: document.getElementById('price').value,
+                category: document.getElementById('category').value,
+                stock_quantity: document.getElementById('stock_quantity').value,
+                manufacturer: document.getElementById('manufacturer').value,
+                release_date: document.getElementById('release_date').value,
+                rating: document.getElementById('rating').value,
+            };
+            const method = productid ? 'PUT' : 'POST';
+            const url = productid ? `/products/${productid}` : '/products';
+            fetch(url, {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(productdata)
+            })
+            .then(response => response.json())
+            .then(() => {
+                document.getElementById('productForm').reset();
+                loadproducts();
+            })
+            .catch(error => console.error('Error saving product:', error));
+        }
+
+        function editproduct(id) {
+            fetch(`/products/${id}`)
+                .then(response => response.json())
+                .then(product => {
+                    document.getElementById('id').value = product.id;
+                    document.getElementById('name').value = product.name;
+                    document.getElementById('description').value = product.description;
+                    document.getElementById('price').value = product.price;
+                    document.getElementById('category').value = product.category;
+                    document.getElementById('stock_quantity').value = product.stock_quantity;
+                    document.getElementById('manufacturer').value = product.manufacturer;
+                    document.getElementById('release_date').value = product.release_date;
+                    document.getElementById('rating').value = product.rating;
+                })
+                .catch(error => console.error('Error fetching product:', error));
+        }
+
+        function deleteproduct(id) {
+            fetch(`/products/${id}`, {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(() => {
+                loadproducts();
+            })
+            .catch(error => console.error('Error deleting product:', error));
+        }
+
+        function logout() {
+            fetch('/logout', { method: 'GET' })
+                .then(() => {
+                    window.location.href = '/index.html';
+                })
+                .catch(error => console.error('Error logging out:', error));
+        }
+    </script>
+</body>
+</html>
